@@ -147,14 +147,17 @@ input[type="checkbox"] + .check__box:hover {
   width: 16px;
   height: 21px;
 }
-.cross {
-  border: none;
-  background: transparent;
+.edit__text {
+  color: black;
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
 }
-.cross:hover {
+.pensil:hover {
   cursor: pointer;
-  transition: 1s;
-  opacity: 0.5;
+}
+.recycle:hover {
+  cursor: pointer;
 }
 .btns {
   background-color: rgb(245, 245, 245);

@@ -8,23 +8,29 @@ let btns = document.querySelector(".btns");
 
 let LS = window.localStorage;
 let arr = [];
+btns.classList.add("d-none");
+
 
 form.addEventListener("submit", function (event) {
   event.preventDefault();
-  createContent(input.value);
+  if (input.value) {
+    createContent(input.value);
+  }
   setIntoLS(input.value);
   input.value = "";
 });
 
-function createContent(text) {
+function createContent(text, check) {
   let content = document.createElement("div");
   content.classList.add("content");
   // let firstLetter = (str) => str.split("")[0].toUppercase() + str.slice(1);
   content.innerHTML = `<div class="left">
                 <label class="check option">
-                  <input type="checkbox" class="checkbox"/>
+                  <input type="checkbox" class="checkbox" ${
+                    check === "text_checked" ? "checked" : ""
+                  }/>
                   <span class="check__box"></span>
-                  <p class="text">${text}</p>
+                  <p class="text ${check}">${text}</p>
                 </label>
               </div>
               <div class="right">
@@ -36,15 +42,7 @@ function createContent(text) {
                 </button>
               </div>`;
   containerList.append(content);
-}
-
-function setIntoLS(text) {
-  let obj = {
-    item: text,
-    done: false,
-  };
-  arr.push(obj);
-  LS.setItem("toBye", JSON.stringify(arr));
+  btns.classList.remove("d-none");
 }
 
 function getFromLS() {
@@ -58,8 +56,17 @@ if (LS.toBye) {
   getFromLS();
 }
 
+function setIntoLS(text) {
+  let obj = {
+    item: text,
+    done: false,
+  };
+  arr.push(obj);
+  LS.setItem("toBye", JSON.stringify(arr));
+}
+
 btnDelAll.addEventListener("click", function () {
-  containerList.classList.add("d-none");
+  containerList.innerHTML = '';
   btns.classList.add("d-none");
   arr = [];
   LS.setItem("toBye", JSON.stringify(arr));
@@ -86,11 +93,11 @@ containerList.addEventListener("click", function (event) {
     let textItem = event.target.closest(".content").querySelector(".text");
     textItem.classList.toggle("text_checked");
     let checkbox = document.querySelector(".checkbox");
-    checkbox.toggleAttribute("checked");
+    checkbox.toggleAttribute("checked"); // если отключить это, то чекбоксы перестают по два включаться
     let x = arr.findIndex((el) => el.item === textItem.innerText);
     arr[x].done = arr[x].done ? false : "text_checked";
     LS.setItem("toBye", JSON.stringify(arr));
-  } else if (event.target.classList == "pensil") {
+  } else if (event.target.classList.contains("pensil")) {
     editText(event);
   }
 });
@@ -104,7 +111,12 @@ btnDelFinished.addEventListener("click", function () {
 
 function editText(event) {
   let icon = event.target.closest(".content").querySelector(".pensil");
-  icon.setAttribute("src", "./style/check_green.webp");
+  if (icon.classList.contains("green")) {
+    icon.setAttribute("src", "./style/pensil.webp");
+  } else {
+    icon.setAttribute("src", "./style/check_green.webp");
+  }
+  icon.classList.toggle("green");
   let textItem = event.target.closest(".content").querySelector(".text");
   let x = textItem.innerText;
   textItem.textContent = "";
@@ -113,11 +125,22 @@ function editText(event) {
   textItem.onkeypress = function (event) {
     let button = event.which || event.keyCode;
     if (button == 13) {
-      let inputValue = textItem.querySelector(".edit__text").value;
-      arr[arr.findIndex((el) => el.item == x)].item = inputValue;
-      LS.setItem("toBye", JSON.stringify(arr));
-      textItem.innerHTML = `<p class="new__text">${inputValue}</P>`;
-      icon.setAttribute("src", "./style/pensil.webp");
+      saveChange(textItem, icon, x);
     }
   };
+  
+  icon.addEventListener("click", function () {
+    let inputValue = textItem.querySelector(".edit__text").value;
+    arr[arr.findIndex((el) => el.item == x)].item = inputValue;
+    LS.setItem("toBye", JSON.stringify(arr));
+    console.log(textItem.innerHTML);
+  });
+}
+
+function saveChange(textItem, icon, x) {
+  let inputValue = textItem.querySelector(".edit__text").value;
+  arr[arr.findIndex((el) => el.item == x)].item = inputValue;
+  LS.setItem("toBye", JSON.stringify(arr));
+  textItem.innerHTML = `<p class="new__text">${inputValue}</P>`;
+  icon.setAttribute("src", "./style/pensil.webp");
 }
