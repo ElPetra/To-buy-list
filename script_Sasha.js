@@ -10,6 +10,7 @@ let LS = window.localStorage;
 let arr = [];
 btns.classList.add("d-none");
 
+
 form.addEventListener("submit", function (event) {
   event.preventDefault();
   if (input.value) {
@@ -34,7 +35,7 @@ function createContent(text, check) {
               </div>
               <div class="right">
                 <button class="apply">
-                  <img class="pensil" id="pensil" src="./style/pensil.webp" alt="check"/>
+                  <img class="pensil" src="./style/pensil.webp" alt="check"/>
                 </button>
                 <button class="delete">
                   <img class="recycle" src="./style/recycle.webp" alt="recycle"/>
@@ -44,15 +45,15 @@ function createContent(text, check) {
   btns.classList.remove("d-none");
 }
 
-if (LS.toBye) {
-  getFromLS();
-}
-
 function getFromLS() {
   arr = JSON.parse(LS.getItem("toBye"));
   for (el of arr) {
     createContent(el.item, el.done);
   }
+}
+
+if (LS.toBye) {
+  getFromLS();
 }
 
 function setIntoLS(text) {
@@ -65,7 +66,7 @@ function setIntoLS(text) {
 }
 
 btnDelAll.addEventListener("click", function () {
-  containerList.innerHTML = "";
+  containerList.innerHTML = '';
   btns.classList.add("d-none");
   arr = [];
   LS.setItem("toBye", JSON.stringify(arr));
@@ -79,10 +80,8 @@ function deleteItem(str) {
   );
   LS.setItem("toBye", JSON.stringify(arr));
   str.closest(".content").remove();
-  if (arr.length === 0) {
-    btns.classList.add("d-none");
-  }
 }
+
 containerList.addEventListener("click", function (event) {
   if (event.target.classList == "recycle") {
     deleteItem(event.target);
@@ -93,8 +92,8 @@ containerList.addEventListener("click", function (event) {
   if (event.target.classList == "checkbox") {
     let textItem = event.target.closest(".content").querySelector(".text");
     textItem.classList.toggle("text_checked");
-    // let checkbox = document.querySelector(".checkbox");
-    // checkbox.toggleAttribute("checked"); // если отключить это, то чекбоксы перестают по два включаться
+    let checkbox = document.querySelector(".checkbox");
+    checkbox.toggleAttribute("checked"); // если отключить это, то чекбоксы перестают по два включаться
     let x = arr.findIndex((el) => el.item === textItem.innerText);
     arr[x].done = arr[x].done ? false : "text_checked";
     LS.setItem("toBye", JSON.stringify(arr));
@@ -111,43 +110,19 @@ btnDelFinished.addEventListener("click", function () {
 });
 
 function editText(event) {
-  let isEdited = false;
   let icon = event.target.closest(".content").querySelector(".pensil");
-  let editArr = event.target.closest(".content").querySelectorAll(".pensil");
   let textItem = event.target.closest(".content").querySelector(".text");
   let x = textItem.innerText;
-  let isEditedCounter = 0;
-  icon.classList.toggle("green");
   if (icon.classList.contains("green")) {
+    icon.setAttribute("src", "./style/pensil.webp");
+    x = textItem.querySelector('input').value;
+    textItem.innerHTML = `${x}`;
+  } else {
     icon.setAttribute("src", "./style/check_green.webp");
     textItem.textContent = "";
-    textItem.innerHTML = `<input class="edit__text" type="text" value= ${x}>`;
-  } else {
-    icon.setAttribute("src", "./style/pensil.webp");
-    x = textItem.querySelector("input").value;
-    textItem.innerHTML = `${x}`;
-
-    for (let el of editArr) {
-      if (el.classList.contains("green")) {
-        isEditedCounter++;
-      }
-    }
-    isEditedCounter > 1 ? (isEdited = true) : (isEdited = false);
-    if (isEdited === true) {
-      // icon.classList.toggle("green");
-      let editedId;
-      for (let el of editArr) {
-        if (el.classList.contains("green")) {
-          editedId = event.target
-            .closest(".content")
-            .querySelector(".pensil")
-            .getAttribute("id");
-        }
-      }
-      editArr[editedId - 1].click();
-      icon.click();
-    }
+    textItem.innerHTML = `<input class="edit__text" type="text" value='${x}'>`;
   }
+  icon.classList.toggle("green");
 
   textItem.onkeypress = function (event) {
     let button = event.which || event.keyCode;
@@ -155,7 +130,7 @@ function editText(event) {
       saveChange(textItem, icon, x);
     }
   };
-
+  
   icon.addEventListener("click", function () {
     let inputValue = textItem.querySelector(".edit__text").value;
     arr[arr.findIndex((el) => el.item == x)].item = inputValue;
@@ -171,5 +146,3 @@ function saveChange(textItem, icon, x) {
   icon.setAttribute("src", "./style/pensil.webp");
   icon.classList.toggle("green");
 }
-
-function editOneItem() {}
